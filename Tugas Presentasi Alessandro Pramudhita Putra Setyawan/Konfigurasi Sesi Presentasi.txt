@@ -1,0 +1,243 @@
+## KONFIGURASI SESI PRESENTASI
+note: 
+- Cabut LAN Card laptop lalu pasang lagi agar konek pada home router
+- Pasang HWIC SFP slot (semacam serial NIM) pada router yang memakai kabel serial lalu nyalakan lagi routernya
+
+===========================SWITCH SWLT1===============================
+Switch>en
+Switch#conf t
+Switch(config)#hostname SWLT1
+SWLT1(config)#vlan 10
+SWLT1(config-vlan)#name Pegawai
+SWLT1(config-vlan)#ex
+SWLT1(config)#vlan 20
+SWLT1(config-vlan)#name Administrator
+SWLT1(config-vlan)#ex
+SWLT1(config)#int fa0/1
+SWLT1(config-if)#switchport access vlan 10
+SWLT1(config-if)#switchport mode access
+SWLT1(config-if)#ex
+SWLT1(config)#int fa0/11
+SWLT1(config-if)#switchport access vlan 20
+SWLT1(config-if)#switchport mode access
+SWLT1(config-if)#ex
+SWLT1(config)#int gig0/2
+SWLT1(config-if)#switchport mode trunk
+SWLT1(config-if)#ex
+SWLT1(config)#do w
+==========================END SWITCH SWLT1============================
+
+
+===========================SWITCH SWLT2===============================
+Switch>en
+Switch#conf t
+Switch(config)#hostname SWLT2
+SWLT2(config)#vlan 10
+SWLT2(config-vlan)#name Pegawai
+SWLT2(config-vlan)#ex
+SWLT2(config)#vlan 20
+SWLT2(config-vlan)#name Administrator
+SWLT2(config-vlan)#ex
+SWLT2(config)#int fa0/1
+SWLT2(config-if)#switchport access vlan 10
+SWLT2(config-if)#switchport mode access
+SWLT2(config-if)#ex
+SWLT2(config)#int fa0/11
+SWLT2(config-if)#switchport access vlan 20
+SWLT2(config-if)#switchport mode access
+SWLT2(config-if)#ex
+SWLT2(config)#int gig0/1
+SWLT2(config-if)#switchport mode trunk
+SWLT2(config-if)#ex
+SWLT2(config)#do w
+==========================END SWITCH SWLT2============================
+
+
+===========================ROUTER R-Kantor============================
+Router>en
+Router#conf t
+Router(config)#hostname R-Kantor
+R-Kantor(config)#int gig0/0
+R-Kantor(config-if)#ip address 10.10.10.2 255.255.255.252
+R-Kantor(config-if)#no sh
+R-Kantor(config-if)#ex
+
+R-Kantor(config)#int gig 0/1
+R-Kantor(config-if)#ip address 192.168.200.100 255.255.255.0
+R-Kantor(config-if)#no sh
+R-Kantor(config-if)#ex
+
+R-Kantor(config)#ip dhcp pool WIFI-Public
+R-Kantor(dhcp-config)#network 192.168.200.0 255.255.255.0
+R-Kantor(dhcp-config)#default-router 192.168.200.100
+R-Kantor(dhcp-config)#ex
+
+R-Kantor(config)#int gig0/1.10
+R-Kantor(config-subif)#encapsulation dot1Q 10
+R-Kantor(config-subif)#ip address 192.168.0.100 255.255.255.0
+R-Kantor(config-subif)#ex
+
+R-Kantor(config)#int gig0/1.10
+R-Kantor(config-subif)#ip dhcp pool Pegawai
+R-Kantor(dhcp-config)#network 192.168.0.0 255.255.255.0
+R-Kantor(dhcp-config)#default-router 192.168.0.100
+R-Kantor(dhcp-config)#ex
+
+R-Kantor(config)#int gig 0/1.20
+R-Kantor(config-subif)#encapsulation dot1Q 20
+R-Kantor(config-subif)#ip address 192.168.100.100 255.255.255.0
+R-Kantor(config-subif)#ip dhcp pool Administrator
+R-Kantor(dhcp-config)#network 192.168.100.0 255.255.255.0
+R-Kantor(dhcp-config)#default-router 192.168.100.100
+R-Kantor(dhcp-config)#ex
+
+## PASANG DNS SERVER AUTO PADA PC
+R-Kantor(config)#int gig0/1
+R-Kantor(config-if)#ip dhcp pool WIFI-Public
+R-Kantor(dhcp-config)#dns-server 172.168.0.3
+R-Kantor(dhcp-config)#ex
+
+R-Kantor(config)#int gig0/1.10
+R-Kantor(config-subif)#ip dhcp pool Pegawai
+R-Kantor(dhcp-config)#dns-server 172.168.0.3
+R-Kantor(dhcp-config)#ex
+
+R-Kantor(config)#int gig0/1.20
+R-Kantor(config-subif)#ip dhcp pool Administrator
+R-Kantor(dhcp-config)#dns-server 172.168.0.3
+R-Kantor(dhcp-config)#ex
+R-Kantor(config-if)#ex
+
+R-Kantor(config)#router ospf 1
+R-Kantor(config-router)#network 10.10.10.0 0.0.0.3 area 0
+R-Kantor(config-router)#network 192.168.0.0 0.0.0.255 area 0
+R-Kantor(config-router)#network 192.168.100.0 0.0.0.255 area 0
+R-Kantor(config-router)#network 192.168.200.0 0.0.0.255 area 0
+R-Kantor(config-router)#ex
+=========================END ROUTER R-Kantor==========================
+
+
+==========================ROUTER RISP-Kantor==========================
+Router>en
+Router#conf t
+Router(config)#hostname RISP-Kantor
+RISP-Kantor(config)#int se 0/0/0
+RISP-Kantor(config)#clock rate 9600
+RISP-Kantor(config-if)#ip address 20.20.20.2 255.255.255.252
+RISP-Kantor(config-if)#no sh
+RISP-Kantor(config-if)#ex
+
+RISP-Kantor(config)#int gig0/0
+RISP-Kantor(config-if)#ip address 10.10.10.1 255.255.255.252
+RISP-Kantor(config-if)#no sh
+RISP-Kantor(config-if)#ex
+
+RISP-Kantor(config)#router ospf 1
+RISP-Kantor(config-router)#network 10.10.10.0 0.0.0.3 area 0
+RISP-Kantor(config-router)#network 20.20.20.0 0.0.0.3 area 0
+RISP-Kantor(config-router)#ex
+
+RISP-Kantor(config)#router bgp 100
+RISP-Kantor(config-router)#network 10.10.10.0 mask 255.255.255.252
+RISP-Kantor(config-router)#neighbor 20.20.20.1 remote-as 200
+RISP-Kantor(config-router)#ex
+RISP-Kantor(config)#do w
+========================END ROUTER RISP-Kantor========================
+
+
+===========================ROUTER RISP-Lain===========================
+Router>en
+Router#conf t
+Router(config)#hostname RISP-Lain
+RISP-Lain(config)#int se 0/0/0
+RISP-Kantor(config)#clock rate 9600
+RISP-Lain(config-if)#ip address 20.20.20.1 255.255.255.252
+RISP-Lain(config-if)#no sh
+
+RISP-Lain(config-if)#
+RISP-Lain(config)#int se0/0/1
+RISP-Lain(config)#clock rate 9600
+RISP-Lain(config-if)#ip address 30.30.30.2 255.255.255.252
+RISP-Lain(config-if)#no sh
+RISP-Lain(config-router)#ex
+
+RISP-Lain(config)#router bgp 200
+RISP-Lain(config-router)#network 20.20.20.0 mask 255.255.255.252
+RISP-Lain(config-router)#network 30.30.30.0 mask 255.255.255.252
+RISP-Lain(config-router)#neighbor 20.20.20.2 remote-as 100
+RISP-Lain(config-router)#neighbor 30.30.30.1 remote-as 300
+RISP-Lain(config-router)#ex
+
+RISP-Lain(config)#router ospf 1
+RISP-Lain(config-router)#network 20.20.20.0 0.0.0.3 area 0
+RISP-Lain(config-router)#network 30.30.30.0 0.0.0.3 area 0
+RISP-Lain(config-router)#ex
+RISP-Lain(config-if)#ex
+RISP-Lain(config)#do w
+========================END ROUTER RISP-Kantor========================
+
+
+===========================ROUTER RISP-Gugle==========================
+RISP-Gugle
+Router>en
+Router#conf t
+Router(config)#hostname RISP-Gugle
+RISP-Gugle(config)#int se 0/0/1
+RISP-Gugle(config)#clock rate 9600
+RISP-Gugle(config-if)#ip address 30.30.30.1 255.255.255.252
+RISP-Gugle(config-if)#no sh
+RISP-Gugle(config-if)#ex
+
+RISP-Gugle(config)#int gig 0/0
+RISP-Gugle(config-if)#ip address 11.11.11.1 255.255.255.252
+RISP-Gugle(config-if)#no sh
+RISP-Gugle(config-if)#ex
+
+RISP-Gugle(config)#router ospf 1
+RISP-Gugle(config-router)#network 11.11.11.0 0.0.0.3 area 0
+RISP-Gugle(config-router)#network 30.30.30.0 0.0.0.3 area 0
+RISP-Gugle(config-router)#ex
+
+RISP-Gugle(config)#router bgp 300
+RISP-Gugle(config-router)#network 11.11.11.0 mask 255.255.255.252
+RISP-Gugle(config-router)#neighbor 30.30.30.2 remote-as 200
+RISP-Gugle(config-router)#ex
+RISP-Gugle(config)#do w
+========================END ROUTER RISP-GUGLE========================
+
+
+==========================ROUTER R-GUGLE=============================
+Router>en
+Router#conf t
+Router(config)#hostname R-Gugle
+R-Gugle(config)#int gig0/0
+R-Gugle(config-if)#ip address 11.11.11.2 255.255.255.252
+R-Gugle(config-if)#no sh
+R-Gugle(config-if)#ex
+
+R-Gugle(config)#int gig0/1
+R-Gugle(config-if)#ip address 172.168.0.1 255.255.255.0
+R-Gugle(config-if)#no sh
+R-Gugle(config-if)#ex
+
+R-Gugle(config)#router ospf 1
+R-Gugle(config-router)#network 11.11.11.0 0.0.0.3 area 0
+R-Gugle(config-router)#network 172.168.0.0 0.0.0.255 area 0
+R-Gugle(config-router)#ex
+R-Gugle(config)#do w
+========================END ROUTER R-GUGLE===========================
+
+## KONFIGURASI IP WEB SERVER
+IP HOST 	: 172.168.1.4
+SUBNET MASK	: 255.255.255.0
+DEFAULT GATEWAY : 172.168.1.1
+DNS SERVER 	: 172.168.1.3
+(index htmlnya diubah dari cisco menjadi google template)
+
+## KONFIGURASI IP DNS SERVER
+IP HOST		: 172.168.1.3
+SUBNET MASK 	: 255.255.255.0
+DEFAULT ROUTER	: 172.168.1.1
+DNS SERVER	: 172.168.1.3
+(tambahkan domain web server yang sudah dibuat beserta address yaitu dns server itu sendiri pada menu SERVICE--->DNS)
+

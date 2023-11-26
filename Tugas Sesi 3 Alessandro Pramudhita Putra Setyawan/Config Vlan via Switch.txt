@@ -1,0 +1,31 @@
+### KONFIGURASI VLAN VIA SWITCH ###
+Switch>enable
+Switch#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#hostname SW-GEL15
+SW-GEL15(config)#vlan 10
+SW-GEL15(config-vlan)#name GEL15.1
+SW-GEL15(config-vlan)#ex
+SW-GEL15(config)#vlan 20
+SW-GEL15(config-vlan)#name GEl15.2
+SW-GEL15(config-vlan)#ex
+SW-GEL15(config)#vlan 30
+SW-GEL15(config-vlan)#name GEl15.3
+SW-GEL15(config-vlan)#ex
+SW-GEL15(config)#interface range fastEthernet 0/1-3
+SW-GEL15(config-if-range)#switchport access vlan 10
+SW-GEL15(config-if-range)#switchport mode access
+SW-GEL15(config-if-range)#ex
+SW-GEL15(config)#interface range fastEthernet 0/4-6
+SW-GEL15(config-if-range)#switchport access vlan 20
+SW-GEL15(config-if-range)#switchport mode access
+SW-GEL15(config-if-range)#ex
+SW-GEL15(config)#interface range fastEthernet 0/7-9
+SW-GEL15(config-if-range)#switchport access vlan 30
+SW-GEL15(config-if-range)#switchport mode access
+SW-GEL15(config-if-range)#ex
+SW-GEL15(config)#do sh vlan
+SW-GEL15(config)#interface fastEthernet 0/10
+SW-GEL15(config-if)#switchport mode trunk
+SW-GEL15(config-if)#ex
+SW-GEL15(config)#ex

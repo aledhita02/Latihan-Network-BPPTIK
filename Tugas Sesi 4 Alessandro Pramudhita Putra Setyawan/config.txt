@@ -1,0 +1,72 @@
+### KONFIGURASI STATIC AUTONOMOUS ###
+(awal colok serial di physical router dan pake serial kabel)
+
+## Config RouterGel.1 ##
+Router>enable
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R-GEL15.1
+R-GEL15.2(config)#interface serial 0/1/0
+R-GEL15.2(config-if)#ip address 10.10.10.1 255.255.255.0
+R-GEL15.2(config-if)#clock rate 9600
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#interface gigabitEthernet 0/0/0
+R-GEL15.2(config-if)#ip address 192.192.192.100 255.255.255.0
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#interface gigabitEthernet 0/0/1
+R-GEL15.2(config-if)#ip address 193.193.193.100 255.255.255.0
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#ip dhcp pool SW2.1
+R-GEL15.2(dhcp-config)#network 192.192.192.0 255.255.255.0
+R-GEL15.2(dhcp-config)#default-router 192.192.192.100
+R-GEL15.2(dhcp-config)#ex
+R-GEL15.2(config)#ip dhcp pool SW2.2
+R-GEL15.2(dhcp-config)#network 193.193.193.0 255.255.255.0
+R-GEL15.2(dhcp-config)#default-router 193.193.193.100
+R-GEL15.2(dhcp-config)#ex
+
+## Routing ip address yang ada di router 2 ke router 1 ##
+R-GEL15.1(config)#ip route 194.194.194.0 255.255.255.0 10.10.10.2
+R-GEL15.1(config)#ip route 195.195.195.0 255.255.255.0 10.10.10.2
+R-GEL15.1(config)#do w
+
+
+## Config RouterGel.2 ##
+Router>enable
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R-GEL15.2
+R-GEL15.2(config)#interface serial 0/1/0
+R-GEL15.2(config-if)#ip address 10.10.10.2 255.255.255.0
+R-GEL15.2(config-if)#clock rate 9600
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#interface gigabitEthernet 0/0/0
+R-GEL15.2(config-if)#ip address 194.194.194.100 255.255.255.0
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#interface gigabitEthernet 0/0/1
+R-GEL15.2(config-if)#ip address 195.195.195.100 255.255.255.0
+R-GEL15.2(config-if)#no sh
+R-GEL15.2(config-if)#ex
+R-GEL15.2(config)#ip dhcp pool SW2.1
+R-GEL15.2(dhcp-config)#network 194.194.194.0 255.255.255.0
+R-GEL15.2(dhcp-config)#default-router 194.194.194.100
+R-GEL15.2(dhcp-config)#ex
+R-GEL15.2(config)#ip dhcp pool SW2.2
+R-GEL15.2(dhcp-config)#network 195.195.195.0 255.255.255.0
+R-GEL15.2(dhcp-config)#default-router 195.195.195.100
+R-GEL15.2(dhcp-config)#ex
+
+## Routing ip address yang ada di router 1 ke router 2 ##
+R-GEL15.2(config)#ip route 192.192.192.0 255.255.255.0 10.10.10.1
+R-GEL15.2(config)#ip route 193.193.193.0 255.255.255.0 10.10.10.1
+
+
+Note : 
+## perintah R-GEL15.1(config)#do w untuk menyimpan config router
+## R-GEL15.1(dhcp-config)# no network 192.192.192.0 255.255.255.0 untuk menghapus network yang di tuju ketika salah pengetikan di dalam config dhcp pool, kemudian bisa masukan lagi network 192.192.192.0 255.255.255.0
+## R-GEL15.2(config)#do show run untuk mengecek apakah sudah masuk networknya beserta penjelasannya

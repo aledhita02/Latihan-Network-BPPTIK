@@ -1,0 +1,48 @@
+### KONFIGURASI BGP STUB/Single Homed ###
+(pake auto kabel gig 0/0/0)
+
+## Config Router-A ##
+Router>en
+Router#conf t
+R-A(config)#interface gigabitEthernet 0/0/0
+R-A(config-if)#ip address 15.1.1.1 255.255.255.0
+R-A(config-if)#no shutdown
+R-A(config-if)#exit
+R-A(config)#interface gigabitEthernet 0/0/1
+R-A(config-if)#ip address 19.0.0.1 255.0.0.0
+R-A(config-if)#no sh
+R-A(config)#interface gigabitEthernet 0/0/0
+R-A(config-if)#ip address 15.1.1.1 255.0.0.0
+R-A(config-if)#no sh
+R-A(config-if)#exit
+
+## Config BGP Router-A ##
+R-A(config)#interface gigabitEthernet 0/0/0
+R-A(config-if)#ip address 15.1.1.1 mask 255.0.0.0
+R-A(config-if)#no sh
+R-A(config-if)#exit
+
+
+
+## Config Router-B ##
+Router>en
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname R-B
+R-B(config)#interface gigabitEthernet 0/0/0
+R-B(config-if)#ip address 15.1.1.2 255.0.0.0
+R-B(config-if)#no shutdown
+R-B(config-if)#interface gigabitEthernet 0/0/1
+R-B(config-if)#ip address 20.0.0.1 255.0.0.0
+R-B(config-if)#no sh
+R-B(config-if)#exit
+
+## Config BGP Router-B ##
+R-B(config)#router bgp 200
+R-B(config-router)#network 20.0.0.0 mask 255.0.0.0
+R-B(config-router)#neighbor 15.1.1.1 remote-as 100
+R-B(config-router)#exit
+R-B(config)#do w
+
+Note :
+## R-B(config-router)#neighbor 15.1.1.1 remote-as 100 (pada router B, neighbornya harus pake ip router tetangganya dengan AS 100 begitu juga dengan router A harus pake ip router 15.1.1.2 dengan AS 200)

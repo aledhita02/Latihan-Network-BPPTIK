@@ -1,0 +1,104 @@
+### KONFIGURASI BGP Multi Homed Homed ###
+(3 router dimatiin dulu serial nimnya di pasang dulu di physical lalu pake kabel serial 0/1/0 ke router SPA dan 0/1/1 ke router SPB kemudian nyalain lagi routerny)
+
+## Config Router-RA ##
+Router>en
+Router#conf t
+Router(config)#hostname RA
+RA(config)#interface serial 0/1/0
+RA(config-if)#ip address 10.10.10.9 255.0.0.0
+RA(config-if)#clock rate 9600
+RA(config-if)#no shutdown
+RA(config-if)#exit
+RA(config)#interface serial 0/1/1
+RA(config-if)#ip address 20.20.20.21 255.0.0.0
+RA(config-if)#clock rate 9600
+RA(config-if)#no shutdown
+RA(config-if)#exit
+RA(config)#interface gigabitEthernet 0/0/0
+RA(config-if)#ip address 30.30.30.100 255.0.0.0
+RA(config-if)#no shutdown
+RA(config-if)#exit
+
+## Config Auto DHCP Router-RA##
+RA(config)#ip dhcp pool SW-RA
+RA(dhcp-config)#no ip dhcp pool SW-RA
+RA(config)#ip dhcp pool SW-A
+RA(dhcp-config)#network 30.30.30.0 255.0.0.0
+RA(dhcp-config)#default-router 30.30.30.100
+RA(dhcp-config)#exit
+
+## Config BGP Router-RA##
+RA(config)#router bgp 300
+RA(config-router)#network 30.30.30.0 mask 255.0.0.0
+RA(config-router)#neighbor 10.10.10.10 remote-as 100
+RA(config-router)#neighbor 20.20.20.22 remote-as 200
+RA(config-router)#exit
+RA(config)#do w
+
+
+
+## Config Router-SPA ##
+Router>en
+Router#conf t
+Router(config)#hostname SP-A
+SP-A(config)#interface serial 0/1/0
+SP-A(config-if)#exit
+SP-A(config)#interface serial 0/1/0
+SP-A(config-if)#ip address 10.10.10.10 255.0.0.0
+SP-A(config-if)#clock rate 9600
+SP-A(config-if)#no shutdown
+SP-A(config-if)#exit
+SP-A(config)#interface gigabitEthernet 0/0/0
+SP-A(config-if)#ip address 40.40.40.100 255.0.0.0
+SP-A(config-if)#no shutdown
+SP-A(config-if)#exit
+
+## Config Auto DHCP Router-SPA##
+SP-A(config)#ip dhcp pool SW-SPA
+SP-A(dhcp-config)#network 40.40.40.0 255.0.0.0
+SP-A(dhcp-config)#default-router 40.40.40.100
+SP-A(dhcp-config)#exit
+
+## Config BGP Router-SPA##
+SP-A(config)#router bgp 100
+SP-A(config-router)#network 40.40.40.0 mask 255.0.0.0
+SP-A(config-router)#neighbor 10.10.10.9 remote-as 300
+SP-A(config-router)#exit
+SP-A(config)#do w
+
+
+
+## Config Router-SPB ##
+Router>en
+Router#conf t
+Enter configuration commands, one per line.  End with CNTL/Z.
+Router(config)#hostname SP-B
+SP-B(config)#interface serial 0/1/1
+SP-B(config-if)#ip address 20.20.20.22 255.0.0.0
+SP-B(config-if)#clock rate 9600
+This command applies only to DCE interfaces
+SP-B(config-if)#no shutdown
+SP-B(config-if)#exit
+SP-B(config)#interface gigabitEthernet 0/0/0
+SP-B(config-if)#ip addres 50.50.50.100 255.0.0.0
+SP-B(config-if)#no shutdown
+SP-B(config-if)#exit
+
+## Config Auto DHCP Router-SPA##
+SP-B(config)#ip dhcp pool SW-SPB
+SP-B(dhcp-config)#network 50.50.50.0 255.0.0.0
+SP-B(dhcp-config)#default-router 50.50.50.100
+SP-B(dhcp-config)#exit
+
+## Config BGP Router-SPB##
+SP-B(config)#router bgp 200
+SP-B(config-router)#network 50.50.50.0 mask 255.0.0.0
+SP-B(config-router)#neighbor 20.20.20.21 remote-as 300
+SP-B(config-router)#exit
+SP-B(config)#do w
+
+Note :
+## RA(config-router)#neighbor 10.10.10.10 remote-as 100
+   RA(config-router)#neighbor 20.20.20.22 remote-as 200 
+(karena router RA ada 2 router yang terhubung maka neighbornya harus pake ip router lainnya selain router-RA dengan AS 100 dan AS 200, untuk di router SPA dan SPB hanya sambungin neighbornya ke router RA saja karna hubungannya cuma ke router RA)
